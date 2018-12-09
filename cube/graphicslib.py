@@ -1,7 +1,11 @@
 """cs1graphics.py
+
 Copyright 2008-2014, David Letscher, Michael H. Goldwasser, Christopher Porter
+
 Go to www.cs1graphics.org for more information.
+
 This is Version 1.2 multithreaded release (23 July 2014)
+
 Modified by Jungkook Park for KAIST CS101. (24 Nov 2015)
 - Use Pillow instead of PIL.
 - Allow base64 image extension.
@@ -147,17 +151,21 @@ except NameError:
 # Global Configuration Controls
 def configureNativeThreading(flag=False):
     """Configures cs1graphics to run in native multi-threaded mode when flag is True.
+
     By default, the library uses a multi-threaded model in which case
     all rendering is managed by a secondary thread, and EventHandlers
     are immediately activated once registered without blocking the
     primary thread.
+
     However, on systems that do not support accessing Tkinter from a
     secondary thread, the model can be changed to be single-threaded,
     with all rendering in the primary thread and EventHandlers
     activated only when the end of the main thread is reached, or an
     explicit (blocking) call to startEventHandling() is made.
+
     Note: This command must be executed prior to the use of any core
     library functionality.
+
     Note: As an alternative, your cs1graphics installation can be
     configured with the default mode set using the variable
     _nativeThread in the preamble of file cs1graphics.py.
@@ -170,15 +178,19 @@ def configureNativeThreading(flag=False):
 
 def configureMathMode(flag=True):
     """Forces cs1graphics to use standard math coordinate system when flag is True.
+
     By default, cs1graphics uses a standard computer graphics
     coordinate system with the origin at the top-left and the positive
     y-axis oriented downward.
+
     If this function is invoked, it causes canvases to use a standard
     mathematics coordinate system with the origin at bottom-left and
     the positive y-axis oriented upward.  In math mode, a positive
     rotation is conventionally counterclockwise rather than clockwise.
+
     NOTE: This command must be executed prior to the use of any core
     library functionality.
+
     Note: As an alternative, your cs1graphics installation can be
     configured with the default coordinate system set using the
     variable _mathMode in the preamble of file cs1graphics.py.
@@ -191,6 +203,7 @@ def configureMathMode(flag=True):
 
 def configureSetRecursionLimit(limit):
     """Changes the limit on recursion for drawable inclusion.
+
     In cases such as when adding a layer to itself, the drawing
     process is intentionally capped with some maximum recursive depth
     to avoid an infinite recursion.  By default, that limit is 10.
@@ -243,11 +256,15 @@ def _chainCompareRecurse(a, b, k):
 class _OrderedMap:
 
     """Implements an ordered map.
+
     Although we do not formally require the keys to be hashable, the
     expectation is that they should not be mutated.
+
     By default, ordering is based on < operator, but the user
     can provide a non-standard boolean function for comparing keys.
+
     This implementation is based upon an underlying treap.
+
     """
 
     def _less(a, b):
@@ -257,9 +274,12 @@ class _OrderedMap:
 
     def __init__(self, less=None):
         """Create an empty map.
+
         less is a boolean function with callingsignature less(keyA, keyB)
         that returns True if keyA is strictly less than keyB.
+
         If not sent, the default < operator is used.
+
         """
         self._root = None
         self._size = 0
@@ -272,9 +292,11 @@ class _OrderedMap:
 
     def _trace(self, key):
         """Walk path looking for given key.
+
         Return the node that has the key, if any.
         Otherwise return the last true node visited.
         In case of an empty map, None is returned.
+
         """
         if len(self) > 0:
             walk = self._root
@@ -297,7 +319,9 @@ class _OrderedMap:
 
     def __delitem__(self, key):
         """Remove the entry assoicated with the key.
+
         KeyError results if key does not exist.
+
         """
         temp = self.find(key)
         if temp is None:
@@ -306,6 +330,7 @@ class _OrderedMap:
 
     def __getitem__(self, key):
         """Return the value associated with the key.
+
         KeyError results if key does not exist.
         """
         temp = self.find(key)
@@ -316,14 +341,18 @@ class _OrderedMap:
 
     def __setitem__(self, key, value):
         """Associate key to value.
+
         If key exists, old value is overwritten with new.
         If key does not exist, it is added to the map.
+
         """
         self.insert(key, value)   # ignore return value
 
     def find(self, key):
         """Return an iterator to the key's position, if found.
+
         None is returned if key not found.
+
         """
         walk = self._trace(key)
         if walk is not None and not \
@@ -338,7 +367,9 @@ class _OrderedMap:
 
     def first(self):
         """Return iterator to the first element of the map.
+
         None is returned if map is empty.
+
         """
         if len(self) > 0:
             return _OrderedMap.iterator(self._root.subtreeMin())
@@ -347,7 +378,9 @@ class _OrderedMap:
 
     def last(self):
         """Return iterator to the last element of the map.
+
         None is returned if map is empty.
+
         """
         if len(self) > 0:
             return _OrderedMap.iterator(self._root.subtreeMax())
@@ -363,11 +396,15 @@ class _OrderedMap:
 
     def closestBefore(self, key, strict=True):
         """Return iterator to position at or before the key.
+
         With strict=True (the default), the search looks for an item
         that has a key strictly smaller than the given one.
+
         With strict=False, it will return an exact match if possible, and
         otherwise the closest before.
+
         Will return None in the case that no earlier key is found.
+
         """
         walk = self._trace(key)
         if walk is None:
@@ -392,11 +429,15 @@ class _OrderedMap:
 
     def closestAfter(self, key, strict=True):
         """Return iterator to position at or after the key.
+
         With strict=True (the default), the search looks for an item
         that has a key strictly larger than the given one.
+
         With strict=False, it will return an exact match if possible, and
         otherwise the closest after.
+
         Will return None in the case that no later key is found.
+
         """
         walk = self._trace(key)
         if self._less(key, walk.key):
@@ -419,9 +460,12 @@ class _OrderedMap:
 
     def insert(self, key, value=None):
         """Associate key to value.
+
         If key exists, old value is overwritten with new.
         If key does not exist, it is added to the map.
+
         Return an iterator to the key's position.
+
         """
         walk = self._trace(key)
         if walk is None:
@@ -497,7 +541,9 @@ class _OrderedMap:
 
     def _rotateUp(self, walk):
         """Rotate node walk up one level.
+
         Assumes that walk is not the root (but parent may be)
+
         """
         parent = walk.parent
         grand = parent.parent
@@ -645,9 +691,11 @@ class _Hierarchy:
     """Used to maintain minimal information to track which objects are
     currently contained (directly or indirectly) on a Canvas, and to
     track the parent/child relationships between those objects.
+
     Technically, each object is noted as an (object,cls) pair where
     cls is the class whose _draw was called.  Typically, this will be
     the object's class, but could be a parent class for some.
+
     Furthermore, each object typically has only one such entry in the
     hierarchy, but with multiple inheritence (e.g. Button), there
     might be three or more different entries, one due to the original
@@ -674,6 +722,7 @@ class _Hierarchy:
 
     def addLink(self, parentTuple, childTuple):
         """Connect child to parent.
+
         parentTuple and childTuple should both be of form (object,cls)
         and that parentTuple is already in this hierarchy.
         """
@@ -724,6 +773,7 @@ class _Hierarchy:
 
     def reviseChildren(self, drawTuple, childSequence):
         """Compares the newSequence of drawable's children to sequence currently on record.
+
         Returns list of (child,serial) pairs for those children that require updated serial numbers.
         """
         raise NotImplementedError('reviseChildren not yet written')  # TODO
@@ -766,7 +816,9 @@ class _Hierarchy:
 
     def computeDownwardChains(self, drawTuple):
         """Computes all downward chians from the given starting point.
+
         Returns pre-order list of (chain, countDict) pairs
+
         Allows for cycles in chain, up to the globally determined recursive limit.
         """
         results = []
@@ -780,12 +832,15 @@ class _Hierarchy:
     def _computeDownwardChainsRecurse(self, results, drawTuple, count):
         """
         Returns a pre-order list of all downward chains (including all prefixes).
+
         Furthermore this version is given a dictionary of counts, mapping from
         drawTuple -> frequency that is presumed to have occurred
         outside the context of this call (zero if not present).
+
         Semantic is that there is a total cap on the number of
         occurrences of any given element, including the previous
         counts.
+
         Note: this function must guarantee that count is restored to
         its previous state by the end of a given call so that there
         are no lasting side effect (except perhaps by having non-keys
@@ -832,6 +887,7 @@ class _RenderedHierarchy:
 
     def add(self, chain, depth, transformation, renderedDrawable):
         """Add a new chain to the hierarchy and return the new node.
+
         The parent chain must be present.
         """
         parentChain = chain[:-1]
@@ -862,6 +918,7 @@ class _RenderedHierarchy:
 
     def remove(self, chain):
         """Remove a node and all of its children.
+
         A list of RenderedDrawables to be deleted is returned.
         """
         node = self._nodeLookup[chain]
@@ -888,6 +945,7 @@ class _RenderedHierarchy:
 
     def prev(self, node):
         """Find the previous leaf node.
+
         Precondition:    node is a leaf node
         If there is no previous node it returns None
         """
@@ -895,6 +953,7 @@ class _RenderedHierarchy:
 
     def next(self, node):
         """Find the next leaf node.
+
         Precondition:    node is a leaf node
         If there is no next node it returns None
         """
@@ -1035,6 +1094,7 @@ class _UpdateManager:
 
     """This is a structure to manage pending updates until they are
     ready to be passed on to the _RenderedManager.
+
     Internally, it is modeled upon the underlying hierarchy, but
     compressed so that it only has nodes for those elements with a
     pending update. This means that siblings are guaranteed to be
@@ -1045,7 +1105,9 @@ class _UpdateManager:
     class _node:
 
         """A basic inner class for a node in the tree.
+
         status will be maintained either as 'stable', 'remove', or 'add'
+
         Frozen nodes will need to mantain two states. A "private" view
         that is the state of the object as it would appear if
         subsequently unfrozen. The "public" state is a representation
@@ -1054,6 +1116,7 @@ class _UpdateManager:
         if needed). That public view is modeled as if its entire
         subtree is unfrozen (even if those nodes have corresponding
         private nodes that are truly frozen).
+
         Unfrozen nodes only have a public view, which can be a mix of
         frozen and unfrozen nodes as needed.
         """
@@ -1073,13 +1136,16 @@ class _UpdateManager:
 
         def isFrozen(self):
             """Is this node representing a directly frozen element.
+
             Note: to be distinguished from indirect freeze of an ancestor
             """
             return self._privateUpdates is not None
 
         def doFreeze(self):
             """Freeze a node
+
             _privateUpdates becomes empty dictionary.
+
             existing (public) children must be splintered into
             appropriate private/public components.
             """
@@ -1146,6 +1212,7 @@ class _UpdateManager:
 
         def setProperties(self, properties):
             """Properties can be any dictionary of kev/value pairs.
+
             This assumes that frozen status is current"""
             if self.isFrozen():
                 self._privateUpdates.update(properties)
@@ -1154,6 +1221,7 @@ class _UpdateManager:
 
         def setBorn(self):
             """Schedule an element as newly born.
+
             We presume that frozen status was already set before this call.
             """
             if self._status == 'remove':
@@ -1163,13 +1231,17 @@ class _UpdateManager:
 
         def setDead(self, parentMap):
             """Schedule an element to die.
+
             If it has not previously been rendered, then the node is
             deleted entirely as it becomes irrelevant.
+
             If it was previously rendered, it is scheduled to die, but
             all other pending updates are flushed since they become
             irrelevant.
+
             parentMap should be the _children map containing this node
             as a value.
+
             """
             if self._status == 'add':
                 # we can go ahead and kill this right away, as well as all descendents
@@ -1266,13 +1338,17 @@ class _UpdateManager:
 
     def __init__(self):
         """An initially empty Hierarchy.
+
         Initialized to have a persistent root with () chain.
+
         """
         self._root = self._node(())
 
     def update(self, chain, style, properties={}):
         """Augment the manager with the given update.
+
         style should be either 'add', 'remove', 'freeze', 'unfreeze', or 'update'
+
         For 'add' or 'update', properties should be dictionary of key/value pairs.
         Empty dicitonary should be used for remove/freeze/unfreeze.
         """
@@ -1291,9 +1367,11 @@ class _UpdateManager:
 
     def flush(self):
         """This returns a preorder generator of all updates to be rendered.
+
         In the process, it mutates the UpdateManager to remove nodes
         associated with objects that will presumably be deleted from
         the rendering.
+
         Objects yielded are (chain, status, properties)
         where status is 'add', 'remove', or 'stable' and properties is a dictionary
         """
@@ -1789,6 +1867,7 @@ class Event(object):
 
     def getDescription(self):
         """Return a text description of the event.
+
         Possibilities include:
           'mouse click', 'mouse release', 'mouse drag', 'keyboard, 'timer', 'canvas close'
         """
@@ -1818,17 +1897,20 @@ class Event(object):
 class EventHandler(object):
 
     """A base class for creating new event handlers.
+
     The handle method for this base class does not do anything.
     """
 
     def __init__(self):
         """Create a new event handler.
+
         Children of this class must call this constructor.
         """
         pass
 
     def handle(self, event):
         """Handle an event.
+
         Child classes must override this method, but do not need
         to call it.
         """
@@ -1855,6 +1937,7 @@ class _EventTrigger(object):
 
     def wait(self):
         """Wait for an event to occur.
+
         When an event occurs, an Event instance is returned
         with information about what has happened.
         """
@@ -1898,8 +1981,10 @@ class Point(object):
 
     def __init__(self, initialX=0, initialY=0):
         """Create a new point instance.
+
         initialX   x-coordinate of the point (default 0)
         initialY   y-coordinate of the point (default 0)
+
         """
         if not isinstance(initialX, (int, float)):
             raise TypeError('x-coordinate must be a number')
@@ -1951,7 +2036,9 @@ class Point(object):
 
     def normalize(self):
         """Mutate the point, scaling it to distance one from the origin.
+
         If the point currently represents the origin, it is unchanged.
+
         """
         mag = self.distance(Point())
         if mag > 0:
@@ -1979,10 +2066,13 @@ class Point(object):
 
     def __mul__(self, operand):
         """Return the result when multiplying the Point by an operand.
+
         When the operand is a scalar (i.e., an int or float), return a
         Point that has coordinates equal to the original times the factor.
+
         When operand is another Point, return a scalar that is the dot
         product of the two points.
+
         """
         if isinstance(operand, (int, float)):         # multiply by constant
             return Point(self._x * operand, self._y * operand)
@@ -1993,14 +2083,19 @@ class Point(object):
 
     def __rmul__(self, operand):
         """Return the result when multiplying the Point by an operand.
+
         See __mul__ for details.
+
         """
         return self * operand
 
     def __xor__(self, angle):
         """Return a point instance equal to a rotated version of the original.
+
         angle  number of degrees of rotation
+
         Rotation is performed about the origin.
+
         """
         if not isinstance(angle, (int, float)):
             raise TypeError('angle must be a number')
@@ -2071,9 +2166,12 @@ class _Transformation(object):
 class Color(object):
 
     """A color representation.
+
     A color can be specified by name or RGB value.
     'Transparent' is used to denote the lack of a color.
+
     See Color.AVAILABLE for a list of available color names.
+
     """
 
     _colorValues = {
@@ -2413,6 +2511,7 @@ class Color(object):
 
     def randomColor():
         """Return a random color.
+
         This static method should be invoked as Color.randomColor().
         """
         return Color((_random.randint(0, 255), _random.randint(0, 255), _random.randint(0, 255)))
@@ -2420,10 +2519,12 @@ class Color(object):
 
     def __init__(self, colorChoice='white'):
         """Create a new Color instance (default 'white').
+
         The parameter can be either:
              - a string with the name of the color
              - an (r,g,b) tuple
              - an existing Color instance (which will be cloned)
+
         """
         # we intentionally have Cavases and Drawable objects using a color
         # register with the color instance, so that when the color is
@@ -2457,8 +2558,10 @@ class Color(object):
 
     def setByName(self, colorName):
         """Set the color to colorName.
+
         colorName   a string representing a valid name
                     ('Transparent' designates the lack of color)
+
         """
         if not isinstance(colorName, basestring):
             raise TypeError('string expected as color name')
@@ -2479,7 +2582,9 @@ class Color(object):
 
     def getColorName(self):
         """Return the name of the color.
+
         If the color was set by RGB value, it returns 'Custom'.
+
         """
         return self._colorName
 
@@ -2509,7 +2614,9 @@ class Color(object):
 
     def __repr__(self):
         """Return the name of the color, if named.
+
         Otherwise return the (r,g,b) value.
+
         """
         if self._colorName == 'Custom':
             return self._colorValue.__repr__()
@@ -2692,6 +2799,7 @@ class Drawable(_EventTrigger):
 
     def __init__(self, reference=None):
         """Create a Drawable instance.
+
         referencePoint  local reference point for scaling, rotating and flipping
                         (default Point(0,0) )
         """
@@ -2729,9 +2837,11 @@ class Drawable(_EventTrigger):
 
     def freeze(self):
         """Freeze the current object (if not already frozen).
+
         For an object that is already rendered, when frozen, any
         further changes to it will not be rendered until such time
         when unfrozen() is called.
+
         However, if unrendered, when added to a canvas or layer, this
         object will be rendered with its most current properties, even
         if currently frozen.
@@ -2745,8 +2855,10 @@ class Drawable(_EventTrigger):
 
     def unfreeze(self):
         """Unfreeze the current object (if currently frozen).
+
         When unfrozen, all changes that were made since the most
         recent call to freeze() will be rendered.
+
         """
         if self._frozen:
             self._frozen = False
@@ -2757,6 +2869,7 @@ class Drawable(_EventTrigger):
 
     def move(self, dx, dy):
         """Move the object dx units along X-axis and dy units along Y-axis.
+
         For the default coordinate system, positive dx is rightward and
         negative is leftward; positive dy is downard and negative is upward.
         """
@@ -2778,6 +2891,7 @@ class Drawable(_EventTrigger):
 
     def rotate(self, angle):
         """Rotate the object around its current reference point.
+
         angle  number of degrees of clockwise rotation
         """
         if not isinstance(angle, (int, float)):
@@ -2793,6 +2907,7 @@ class Drawable(_EventTrigger):
 
     def scale(self, factor):
         """Scale the object relative to its current reference point.
+
         factor      scale is multiplied by this number (must be positive)
         """
         if not isinstance(factor, (int, float)):
@@ -2809,6 +2924,7 @@ class Drawable(_EventTrigger):
 
     def stretch(self, xFactor, yFactor, angle=0):
         """Stretch the shape in mutltiple direction.
+
         By default the x-axis is scaled by a factor of xFactor and the
         y-axis is scaled by a factor of yFactor.  The optional
         parameter rotates the directions that the streching is performed
@@ -2831,7 +2947,9 @@ class Drawable(_EventTrigger):
 
     def flip(self, angle=0):
         """Flip the object reflected about its current reference point.
+
         By default the flip is a left-to-right flip with a vertical axis of symmetry.
+
         angle     a clockwise rotation of the axis of symmetry away from vertical
         """
         if not isinstance(angle, (int, float)):
@@ -2850,10 +2968,12 @@ class Drawable(_EventTrigger):
 
     def shear(self, shear, angle=0):
         """Shear the object relative to its current reference point.
+
         By default, points with the same y-coordinate as the reference point are left
         unchanged.  A point d units above the reference point is shifted d * shear
         units to the right.  The optional angle parameter rotates the axis
         that the shearing occurs along.
+
         angle      clockwise angle for shear
         """
         if not isinstance(shear, (int, float)):
@@ -2874,12 +2994,14 @@ class Drawable(_EventTrigger):
 
     def getReferencePoint(self):
         """Return a copy of the current reference point.
+
         Note that mutating that copy has no effect on the Drawable object.
         """
         return self._localToGlobal(self._reference)
 
     def adjustReference(self, dx, dy):
         """Move the local reference point relative to its current position.
+
         Note that the object is not moved at all.
         """
         if not isinstance(dx, (int, float)):
@@ -2892,6 +3014,7 @@ class Drawable(_EventTrigger):
 
     def setDepth(self, depth):
         """Set the depth of the object.
+
         Objects with a higher depth will be rendered behind those with lower depths.
         """
         if not isinstance(depth, (int, float)):
@@ -2905,10 +3028,12 @@ class Drawable(_EventTrigger):
 
     def clone(self):
         """Return a duplicate of the drawable object.
+
         The duplicate will have the same properties as the original,
         including the sharing of color instances, but the new instance
         is not automatically added to those canvases or layers
         containing the original.
+
         """
         return _copy.deepcopy(self)
 
@@ -2940,6 +3065,7 @@ class Drawable(_EventTrigger):
 
     def _contentsChanged(self):
         """Designates that the composition of a (user-defined) Drawable may have changed.
+
         This should be called if an action has taken place that may
         effect the composition of _draw for this object, either
         because components have been re-ordered, or because components
@@ -2973,6 +3099,7 @@ class Shape(Drawable):
 
     def __init__(self, reference=None):
         """Construct a Shape instance.
+
         reference  the initial placement of the shape's reference point.
                    (default Point(0,0) )
         """
@@ -2995,6 +3122,7 @@ class Shape(Drawable):
     def setBorderColor(self, color):
         """
         Set the border color to a copy of the indicated color.
+
         The parameter can be either:
              - a string with the name of the color
              - an (r,g,b) tuple
@@ -3032,13 +3160,17 @@ class Shape(Drawable):
 
     def setBorderDash(self, dashLength, gapLength=None):
         """Set the border to be a dashed line.
+
         downLength  the length of a dash
         gapLength   the length of interdash space (Default: downLength)
+
         For example,
           setBorderDash(3)   gives pattern:  xxx   xxx   xxx
           setBorderDash(4,1) gives pattern:  xxxx xxxx xxxx
           setBorderDash(1,4) gives pattern:  x    x    x    
+
         Note: gapLength of zero turns this into solid border.
+
         Note: some systems do not properly support dashes with borderWidth greater than 1.
         """
         if not isinstance(dashLength, (int, float)):
@@ -3067,9 +3199,12 @@ class FillableShape(Shape):
 
     def __init__(self, reference=None):
         """Construct a new FillableShape instance.
+
         The interior color defaults to 'Transparent'.
+
         reference  the initial placement of the shape's reference point.
                    (default Point(0,0) )
+
         """
         if reference is not None and not isinstance(reference, Point):
             raise TypeError('reference point must be a Point instance')
@@ -3087,10 +3222,12 @@ class FillableShape(Shape):
 
     def setFillColor(self, color):
         """Set the interior color of the shape to the color.
+
         The parameter can be either:
              - a string with the name of the color
              - an (r,g,b) tuple
              - an existing Color instance
+
         """
         if self._fillColor is not color:
             old = self._fillColor
@@ -3124,12 +3261,14 @@ class Canvas(_GraphicsContainer, _EventTrigger):
 
     def __init__(self, w=200, h=200, bgColor=None, title='Graphics canvas', autoRefresh=True):
         """Create a new drawing canvas.
+
         A new canvas will be created.
             w             width of drawing area (default 200)
             h             height of drawing area (default 200)
             bgColor       color of the background (default 'White')
             title         window title (default 'Graphics Canvas')
             autoRefresh   whether auto-refresh mode is used (default True)
+
         """
         super(Canvas, self).__init__()
 
@@ -3193,7 +3332,9 @@ class Canvas(_GraphicsContainer, _EventTrigger):
 
     def getAutoRefresh(self):
         """Queries current state of the auto-refresh mode.
+
         Returns True if auto-refresh is currently set; False otherwise.
+
         """
         return not self._frozen
 
@@ -3205,13 +3346,16 @@ class Canvas(_GraphicsContainer, _EventTrigger):
 
     def setAutoRefresh(self, autoRefresh=True):
         """Change the auto-refresh mode.
+
         When True (the default), every change to the canvas or to an
              object drawn upon the canvas will be immediately rendered to
              the screen.
+
         When False, all changes are recorded internally, yet not shown
              on the screen until the next subsequent call to the refresh()
              method of this canvas.  This allows multiple changes to be
              buffered and rendered all at once.
+
         """
         if not isinstance(autoRefresh, bool):
             raise TypeError('autoRefresh flag should be a bool')
@@ -3225,10 +3369,12 @@ class Canvas(_GraphicsContainer, _EventTrigger):
 
     def setBackgroundColor(self, color):
         """Set the background color.
+
         The parameter can be either:
              - a string with the name of the color
              - an (r,g,b) tuple
              - an existing Color instance
+
         """
         if self._backgroundColor is not color:
             oldColor = self._backgroundColor
@@ -3295,6 +3441,7 @@ class Canvas(_GraphicsContainer, _EventTrigger):
 
     def open(self):
         """Opens a graphic window (if not already open).
+
         The window can be closed with a subsequent call to close().
         """
         if not self._canvasOpen:
@@ -3304,6 +3451,7 @@ class Canvas(_GraphicsContainer, _EventTrigger):
 
     def close(self):
         """Close the canvas window (if not already closed).
+
         The window can be reopened with a subsequent call to open().
         """
         if self._canvasOpen:
@@ -3342,6 +3490,7 @@ class Canvas(_GraphicsContainer, _EventTrigger):
 
     def setView(self, lowerLeft, upperRight):
         """Set the coordinates for the lower-left corner and upper-right corners of the canvas.
+
         lowerLeft and upperRight are Point instances storing the coordinates of the corners.
         """
         if not isinstance(lowerLeft, Point) or not isinstance(upperRight, Point):
@@ -3359,9 +3508,11 @@ class Canvas(_GraphicsContainer, _EventTrigger):
 
     def zoomView(self, factor, fixedPoint=None):
         """Scales the coordinate system for the canvas about the given fixed point.
+
         factor      multiplicative zoom factor (must be positive number)
         fixedPoint  the fixed point for the zoom in local coordinates
                     (default center of current view)
+
         """
         if not isinstance(factor, (int, float)):
             raise TypeError('zoom factor must be a positive number')
@@ -3380,9 +3531,11 @@ class Canvas(_GraphicsContainer, _EventTrigger):
 
     def rotateView(self, angle, fixedPoint=None):
         """Rotates the coordinate system of the canvas about the given fixed point.
+
         angle       number of degrees of clockwise rotation
         fixedPoint  the fixed point for the rotation in local coordinates
                     (default center of current view)
+
         """
         if not isinstance(angle, (int, float)):
             raise TypeError('angle must be numeric')
@@ -3403,6 +3556,7 @@ class Canvas(_GraphicsContainer, _EventTrigger):
 
     def translateView(self, lowerLeft):
         """Translates the viewable portion of the canvas's coordinate system.
+
         lowerLeft  the Point in the coordinate system that should be aligned with the
                    lower-left corner of the Canvas window.
         """
@@ -3416,8 +3570,10 @@ class Canvas(_GraphicsContainer, _EventTrigger):
 
     def saveToFile(self, filename):
         """Save a picture of the current canvas to a file.
+
         The filename extension must be a supported file type.
         The standard extentions are either .eps or .ps.
+
         If the Python Imaging Library is installed then addition
         supported file types are: .gif, .jpg, .jpeg, .png
         """
@@ -3449,8 +3605,10 @@ class Canvas(_GraphicsContainer, _EventTrigger):
 
     def saveToIO(self, bio, ext='eps'):
         """Save a picture of the current canvas to a file.
+
         The filename extension must be a supported file type.
         The standard extentions are either .eps or .ps.
+
         If the Python Imaging Library is installed then addition
         supported file types are: .gif, .jpg, .jpeg, .png
         """
@@ -3633,23 +3791,30 @@ class _RenderedCanvas(object):
 class Layer(Drawable, _GraphicsContainer):
 
     """A composite that represents a group of shapes as a single drawable object.
+
     Objects are placed onto the layer relative to the coordinate
     system of the layer itself.  The layer can then be placed onto a
     canvas (or even onto another layer).
+
     """
 
     def __init__(self):
         """Construct a new Layer instance.
+
         The layer is initially empty.
+
         The reference point of that layer is initially the origin in
         its own coordinate system, (0,0).
+
         """
         super(Layer, self).__init__()
         self._final = False
 
     def finalize(self):
         """Finalize the layer.
+
         Once finalized, objects can no longer be added or deleted.
+
         """
         self._final = True
 
@@ -3676,7 +3841,9 @@ class Layer(Drawable, _GraphicsContainer):
 
     def remove(self, drawable):
         """Remove the Drawable object from the layer.
+
         A ValueError is raised if the drawable is not currently in the layer.
+
         """
         if self._final:
             raise Exception('cannot remove objects once finalized')
@@ -3702,10 +3869,13 @@ class Circle(FillableShape):
 
     def __init__(self, radius=10, centerPt=None):
         """Construct a new instance of Circle.
+
         radius    the circle's radius (default 10)
         centerPt  a Point representing the placement of the circle's center
                   (default Point(0,0) )
+
         The reference point for a circle is originally its center.
+
         """
         if not isinstance(radius, (int, float)):
             raise TypeError('radius must be numeric')
@@ -3748,11 +3918,14 @@ class Ellipse(FillableShape):
 
     def __init__(self, w=10, h=10, centerPt=None):
         """Construct a new instance of Circle.
+
         w         the ellipse's width (default 10)
         h         the ellipse's height (default 10)
         centerPt  a Point representing the placement of the circle's center
                   (default Point(0,0) )
+
         The reference point for a ellipse is originally its center.
+
         """
         if not isinstance(w, (int, float)):
             raise TypeError('width must be numeric')
@@ -3817,11 +3990,14 @@ class Rectangle(FillableShape):
     def __init__(self, w=20, h=10, centerPt=None):
         """
         Construct a new instance of a Rectangle.
+
         The reference point for a rectangle is its center.
+
         w         the width of the rectangle (default 20)
         h         the height of the rectangle (default 10)
         centerPt  a Point representing the placement of the rectangle's center
                   (default Point(0,0) )
+
         """
         if not isinstance(w, (int, float)):
             raise TypeError('width must be numericr')
@@ -3890,10 +4066,13 @@ class Square(Rectangle):
     def __init__(self, size=10, centerPt=None):
         """
         Construct a new Square instance.
+
         The reference point for a square is its center.
+
         size      the dimension of the square (default 10)
         centerPt  a Point representing the placement of the rectangle's center
                   (defaults Point(0,0) )
+
         """
         if not isinstance(size, (int, float)):
             raise TypeError('size must be numeric')
@@ -3945,11 +4124,14 @@ class Path(Shape):
 
     def __init__(self, *points):
         """Construct a new instance of a Path.
+
         The path is described as a series of points that are connected in order.
+
         These points can be initialized by sending each individual Point
         as a separate parameter, or by sending a single parameter
         containing a sequence of Points. If no parameters are sent, the
         path initially has zero points.
+
         The reference point for a path is initially aligned with the first
         point of the path.
         """
@@ -3979,15 +4161,19 @@ class Path(Shape):
 
     def finalize(self):
         """Finalize the shape.
+
         Once finalized, points can no longer be added, deleted, or modified.
+
         """
         self._final = True
 
     def addPoint(self, point, index=-1):
         """Add a new point to the Path.
+
         point  a Point instance
         index  designates where on the path the new point is placed
                (default at the end)
+
         """
         if self._final:
             raise Exception('cannot add points once finalized')
@@ -4003,7 +4189,9 @@ class Path(Shape):
 
     def deletePoint(self, index=-1):
         """Remove the Point at the given index.
+
         By default, deletes the last point.
+
         """
         if self._final:
             raise Exception('cannot delete points once finalized')
@@ -4028,7 +4216,9 @@ class Path(Shape):
 
     def getPoint(self, index):
         """Return a copy of the Point at the given index.
+
         Subsequently mutating that copy has no effect on the Path.
+
         """
         if not isinstance(index, int):
             raise TypeError('index must be an integer')
@@ -4040,7 +4230,9 @@ class Path(Shape):
 
     def setPoint(self, point, index=-1):
         """Change the Point at the given index to a new value.
+
         By default, the last point is changed.
+
         """
         if self._final:
             raise Exception('cannot modify points once finalized')
@@ -4060,11 +4252,14 @@ class Path(Shape):
 
     def setArrows(self, forward, reverse=False):
         """Change setting for whether arrows are drawn at beginning and end of path.
+
         If forward is True, will draw an arrow at the last point on the path.
         Otherwise, no such arrow is drawn.
+
         If reverse is True, will draw a reverse arrow eminating from
         the first point on the path; otherwise (the default), no such
         arrow is drawn.
+
         Note: arrows are never displayed for Polygon or ClosedSpline instances
         """
         self._arrows = (forward, reverse)
@@ -4093,14 +4288,18 @@ class Polygon(Path, FillableShape):
 
     def __init__(self, *points):
         """Construct a new Polygon instance.
+
         The polygon is described as a series of points that are connected in order.
         The last point is automatically connected back to the first to close the polygon.
+
         These points can be initialized by sending each individual Point
         as a separate parameter, or by sending a single parameter
         containing a sequence of Points. If no parameters are sent, the
         polygon initially has zero points.
+
         The reference point for a polygon is initially aligned with the
         first point of the polygon.
+
         """
         super(Polygon, self).__init__()
 
@@ -4121,14 +4320,18 @@ class Spline(Path):
     def __init__(self, *points):
         """
         Construct a new instance of a Spline.
+
         The spline is described as a series of points that are connected in order
         with curves.
+
         These points can be initialized by sending each individual Point
         as a separate parameter, or by sending a single parameter
         containing a sequence of Points. If no parameters are sent, the
         path initially has zero points.
+
         The reference point for a spline is initially aligned with the first
         point of the spline.
+
         """
         # Quick solution, check Polygon same code
         # Better solution: path has private method: _batchPoints takes parameter
@@ -4152,14 +4355,18 @@ class ClosedSpline(Polygon):
 
     def __init__(self, *points):
         """Construct a new ClosedSpline instance.
+
         The cuved spline is described as a series of points that are connected in order.
         The last point is automatically connected back to the first to close the spline.
+
         These points can be initialized by sending each individual Point
         as a separate parameter, or by sending a single parameter
         containing a sequence of Points. If no parameters are sent, the
         polygon initially has zero points.
+
         The reference point for a closed spline is initially aligned with the
         first point of the spline.
+
         """
         super(ClosedSpline, self).__init__()
 
@@ -4181,13 +4388,17 @@ class Text(Drawable):
     def __init__(self, message='', fontsize=12, centerPt=None):
         """
         Construct a new Text instance.
+
         The text color is initially black, although this can be changed by
         setColor.  The reference point for the text is initially its center.
+
         message   a string which is to be displayed (default empty string)
         fontsize  the font size (default 12)
         centerPt  where to locate the center of the text (default Point(0,0) )
+
         By default, multiline text will be left-justified, although
         this style can be changed by the setJustification method.
+
         """
         if not isinstance(message, basestring):
             raise TypeError('message must be a string')
@@ -4224,7 +4435,9 @@ class Text(Drawable):
 
     def setMessage(self, message):
         """Set the string to be displayed.
+
         message  a string
+
         """
         if not isinstance(message, basestring):
             raise TypeError('message must be a string')
@@ -4237,10 +4450,12 @@ class Text(Drawable):
 
     def setFontColor(self, color):
         """Set the color of the font.
+
         The parameter can be either:
              - a string with the name of the color
              - an (r,g,b) tuple
              - an existing Color instance
+
         """
         if self._color is not color:
             old = self._color
@@ -4276,7 +4491,9 @@ class Text(Drawable):
 
     def scale(self, factor):
         """Scale the object relative to its current reference point.
+
         factor      scale is multiplied by this number (must be positive)
+
         """
         if not isinstance(factor, (int, float)):
             raise TypeError('scaling factor must be a positive number')
@@ -4311,7 +4528,9 @@ class Text(Drawable):
 
     def setJustification(self, style):
         """Set the justifcation style for multiline text.
+
         style   must be either 'left', 'right', or 'center'
+
         By default, text is center justified.
         """
         if not isinstance(style, basestring):
@@ -4328,19 +4547,24 @@ class Image(Drawable):
 
     def __init__(self, *args):
         """Construct a new Image instance.
+
         If invoked as Image(filename), the image will be constructed
         based on the contents of an underlying image file.
         gif format should be supported universally; support for
         additional image formats (e.g., jpg) will be system dependent.
         Install Pythin Image Library (PIL) for more options.
+
         If invoked as Image(width, height), a new image is created
         with the given dimensions, and with all pixels are initially
         Transparent.
+
         Once it is constructed, the virtual width and height of the
         image is fixed, and a coordinate system is used for accessing
         individual pixels of the image.
+
         However, the virtual image may be rendered at any size on a
         Canvas through use of methods such as scale inherited from Drawable.
+
         The center of the image is initially aligned with Point(0,0).
         """
         super(Image, self).__init__()
@@ -4417,13 +4641,16 @@ class Image(Drawable):
 
     def setPixel(self, x, y, color):
         """Set the specified pixel to the given color.
+
         The parameter can be either:
              - a string with the name of the color
              - an (r,g,b) tuple
              - an existing Color instance (which will be copied)
+
         Note: Images are intentionally implemented so that individual
         calls to setPixel are not immediately rendered.   You must call
         updatePixels() to force all changes to be rendered.
+
         """
         if not isinstance(x, int):
             raise TypeError('x must be integral')
@@ -4959,7 +5186,9 @@ def _exitMainThread():
 def startEventHandling():
     """
     Blocks the main thread and enters event-handling mode.
+
     This can be counteracted by a later call to stopEventHandling().
+
     Note: This should not be called if using native threading.
     """
     if not _nativeThreading:
@@ -4999,7 +5228,9 @@ def _getTextSize(message, fontsize):
 # Utility for Image Processing
 def _convertImage(img):
     """Takes a PhotoImage instance, and produces array pixmap representation.
+
     Formally, returns pair of arrays.
+
     First is array of bytes describing the colors (in row-major
     order), and a second array that is used as a bitfield for
     transparency representation.
@@ -5028,8 +5259,10 @@ class Button(Text, Rectangle, EventHandler):
 
     def __init__(self, message='', centerPt=None):
         """Create a new button.
+
         The width and height of the button automatically adjust
         to the size of the displayed text.
+
         message   the text to display on the button
         centerPt  where to place the center of the button
         """
@@ -5069,6 +5302,7 @@ class Button(Text, Rectangle, EventHandler):
 
     def scale(self, factor):
         """Scale the object relative to its current reference point.
+
         factor      scale is multiplied by this number (must be positive)
         """
         self._baseBorderWidth *= width
@@ -5091,6 +5325,7 @@ class TextBox(Text, Rectangle, EventHandler):
 
     def __init__(self, width=100, height=50, centerPt=None):
         """Construct a box to enter text into.
+
         width     the width of the box
         height    the height of the box
         centerPt  the location of the boxes center
@@ -5119,12 +5354,14 @@ class TextBox(Text, Rectangle, EventHandler):
 class Timer(_EventTrigger):
 
     """A widget for generating one or more cs1graphics events based on a time delay
+
     By default, a timer generates a single event once started, after a given interval of time passes.
     A recurring timer with a given period can be generated by means of an optional parameter to the constructor.
     """
 
     def __init__(self, delay, repeat=False):
         """Generate a new Timer object.
+
         delay    the amount of time, in seconds, before the alarm triggers once started
         repeat   if False (the default), the timer will only generate one event
                  if True, the timer will be recurring once started, generating periodic events
